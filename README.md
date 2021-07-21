@@ -1,5 +1,7 @@
 # Beyond Chocolate
 
+[![Build Status](https://akvo.semaphoreci.com/badges/2scale/branches/master.svg?style=shields)]
+
 ## Development
 
 To startup the application stack, run
