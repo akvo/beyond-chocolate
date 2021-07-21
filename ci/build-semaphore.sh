@@ -9,18 +9,12 @@ docker run \
        --volume "$(pwd):/home/tcakvo/public_html/gisco-demo" \
        --workdir /home/tcakvo/public_html/gisco-demo \
        --entrypoint /bin/sh \
-       composer:1.10.17 -c 'composer install'
-
-docker run \
-       --rm \
-       --volume "$(pwd):/home/tcakvo/public_html/gisco-demo" \
-       --workdir /home/tcakvo/public_html/gisco-demo \
-       --entrypoint /bin/sh \
-       composer:1.10.17 -c 'composer dump-autoload'
+       composer -c 'composer install'
 
 docker run \
        --rm \
        --volume "$(pwd):/home/tcakvo/public_html/gisco-demo" \
        --workdir "/home/tcakvo/public_html/gisco-demo" \
        --entrypoint /bin/sh \
-       node:8-alpine -c 'npm i && npm run prod'
+       node:14-alpine -c 'npm i && npm run prod'
+
