@@ -9,6 +9,7 @@ use App\Models\Collaborator;
 use Akvo\Models\FormInstance;
 use Akvo\Models\QuestionGroup;
 use Akvo\Models\Answer;
+use Akvo\Models\DownloadLog;
 use League\Csv\Writer;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\FlowDataSeedController;
@@ -61,6 +62,9 @@ class SubmissionController extends Controller
 
     public function syncAndDownloadData(Request $request, FlowDataSeedController $flowData, FlowDataSyncController $syncData)
     {
+        # TODO :: Secure data download, refactor this controller to download data
+        # then saved that value to download_logs to waiting approval from admin
+
         $idh_forms = config('bc.idh_forms');
         # TODO :: check if uuid has been on database
 
