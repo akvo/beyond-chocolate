@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\FlowDataSeedController;
 use App\Http\Controllers\FlowDataSyncController;
 use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\EmailController;
 
 class SubmissionController extends Controller
 {
@@ -291,7 +292,7 @@ class SubmissionController extends Controller
 
     private function saveDownloadLog($request, $filepath, $user, $status = null)
     {
-        # TODO :: Need to send an email notification to admin, there was a download request
+        # TODO :: need to manage save the download log
         # Save the download log
         $downloadLog = new DownloadLog([
             'web_form_id' => (int) $request->webform_id,
@@ -302,6 +303,12 @@ class SubmissionController extends Controller
             'request_by' => $user->id,
         ]);
         $downloadLog->save();
+
+        # TODO :: Need to send an email notification to admin, there was a download request
+        # send an email notification
+        $email = new EmailController();
+        $notification = $email->sendRequestDataDownloadEmail($downloadLog);
+
         return $downloadLog;
     }
 }

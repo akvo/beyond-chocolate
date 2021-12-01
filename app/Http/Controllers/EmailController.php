@@ -110,4 +110,31 @@ Falls Sie Schwierigkeiten haben, können Sie $signed_de kontaktieren oder das Fe
         ]);
     }
 
+    public function sendRequestDataDownloadEmail($data)
+    {
+        $mails = new Mails();;
+        $footer = "Cocoa Monitoring";
+        # all admin recipients
+        if (env('APP_ENV') === 'production') {
+            $admins = User::where('role', 'admin')->get()->pluck('email');
+        }
+        if (env('APP_ENV') === 'local') {
+            $admins = explode(",", env('DEVELOPMENT_EMAIL_RECIPIENT'));
+        }
+        $recipients = collect($admins)->map(function($address){
+            return [
+                'Email' => $address
+            ];
+        });
+
+        $subject = "Data Download Request";
+        $body = "Request data download for filename, username";
+        $text = "Data download request from:";
+        $response = $mails->sendEmail($recipients, false, $subject, $body, $text);
+
+        return response([
+            'message' => 'Download request notification has been sent!', 'mails' => $response
+        ]);
+    }
+
 }
