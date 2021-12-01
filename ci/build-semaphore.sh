@@ -9,7 +9,7 @@ docker run \
        --volume "$(pwd):/home/tcakvo/public_html/gisco-demo" \
        --workdir /home/tcakvo/public_html/gisco-demo \
        --entrypoint /bin/sh \
-       composer -c 'composer install'
+       composer:2 -c 'composer install'
 
 docker run \
        --rm \
