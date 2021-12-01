@@ -9,7 +9,7 @@ use App\Models\Collaborator;
 use Akvo\Models\FormInstance;
 use Akvo\Models\QuestionGroup;
 use Akvo\Models\Answer;
-use Akvo\Models\DownloadLog;
+use App\Models\DownloadLog;
 use League\Csv\Writer;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\FlowDataSeedController;
@@ -26,6 +26,8 @@ class SubmissionController extends Controller
         }
         $user = $request->user();
         $collaboratorForms = Collaborator::where('organization_id', $user->organization_id)->get()->pluck('web_form_id');
+        # TODO :: Add status is the data already requested to download or not
+        $downloadLog = DownloadLog::where('request_by', $user->id)->orderBy('id', 'desc')->get();
         $webforms = WebForm::where([
             ['user_id', $user->id],
             ['submitted', true]
@@ -35,14 +37,17 @@ class SubmissionController extends Controller
         ])->orWhere(function ($query) use ($collaboratorForms) {
             $query->where('submitted', true)
                   ->whereIn('id', $collaboratorForms);
-        })->with('organization', 'user')->get()->map(function ($wf) use ($questionnaires) {
+        })->with('organization', 'user')->get()->map(function ($wf) use ($questionnaires, $downloadLog) {
             $wf['org_name'] = $wf['organization']['name'];
             // $wf['user_name'] = $wf['user']['name'];
             // return collect($wf)->only('uuid', 'org_name', 'user_name');
             $wf['submitter_name'] = $wf['user']['name'];
             $display_name = (is_null($wf['display_name'])) ? '' : ' - '.$wf['display_name'];
             $wf['form_name'] = $questionnaires[$wf['form_id']].$display_name;
-            return collect($wf)->only('id', 'uuid', 'org_name', 'submitter_name', 'form_name', 'form_id', 'updated_at', 'form_instance_id');
+            # TODO :: Add status is the data already requested to download or not
+            $log = $downloadLog->firstWhere('web_form_id', $wf['id']);
+            $wf['download_status'] = $log ? $log['status'] : null;
+            return collect($wf)->only('id', 'uuid', 'org_name', 'submitter_name', 'form_name', 'form_id', 'updated_at', 'form_instance_id', 'download_status');
         });
 
         return $webforms;
@@ -64,14 +69,17 @@ class SubmissionController extends Controller
     {
         # TODO :: Secure data download, refactor this controller to download data
         # then saved that value to download_logs to waiting approval from admin
-
+        $user = $request->user();
         $idh_forms = config('bc.idh_forms');
-        # TODO :: check if uuid has been on database
+        $filepath = null;
 
+        # TODO :: check if uuid has been on database
         Log::error('webform_id', [$request->webform_id]);
         $webform = WebForm::where('id', $request->webform_id)->first();
         if (!is_null($webform) && $webform->form_instance_id == 'idh' ){
-            return ["link" => "uploads/idh/".$request->webform_id.'-'.$this->trim($request->filename).".csv"];
+            // return ["link" => "uploads/idh/".$request->webform_id.'-'.$this->trim($request->filename).".csv"];
+            $filepath = "uploads/idh/".$request->webform_id.'-'.$this->trim($request->filename).".csv";
+            return $this->saveDownloadLog($request, $filepath, $user);
         }
         $form_instance = FormInstance::where('identifier', $request->uuid)->first();
         Log::error('ey!', [$form_instance, $request->uuid]);
@@ -79,9 +87,14 @@ class SubmissionController extends Controller
             # Download data, use downloadData function
             Log::error('not null ... calling downloadData');
             if(in_array($form_instance['form_id'], $idh_forms)){
-                return ["link" => "uploads/idh/".$this->trim($request->filename).".csv"];
+                // return ["link" => "uploads/idh/".$this->trim($request->filename).".csv"];
+                $filepath = "uploads/idh/".$this->trim($request->filename).".csv";
+                return $this->saveDownloadLog($request, $filepath, $user);
             } else {
-                return $this->downloadData($request->form_id, $form_instance->id, $request->filename, false);
+                // return $this->downloadData($request->form_id, $form_instance->id, $request->filename, false);
+                $downloadedFile = $this->downloadData($request->form_id, $form_instance->id, $request->filename, false);
+                $filepath = isset($downloadedFile["link"]) ? $downloadedFile["link"] : null;
+                return $this->saveDownloadLog($request, $filepath, $user);
             }
         }
 
@@ -99,7 +112,11 @@ class SubmissionController extends Controller
             Log::error('No Content');
             return \response('No Content', 204);
         }
-        return $this->downloadData($request->form_id, $form_instance->id, $request->filename, false);
+
+        // return $this->downloadData($request->form_id, $form_instance->id, $request->filename, false);
+        $downloadedFile = $this->downloadData($request->form_id, $form_instance->id, $request->filename, false);
+        $filepath = isset($downloadedFile["link"]) ? $downloadedFile["link"] : null;
+        return $this->saveDownloadLog($request, $filepath, $user);
     }
 
     protected function trim($s)
@@ -270,5 +287,21 @@ class SubmissionController extends Controller
         $writer->insertAll(collect($data['records'])->toArray());
 
         return Storage::disk('public')->url($filename);
+    }
+
+    private function saveDownloadLog($request, $filepath, $user, $status = null)
+    {
+        # TODO :: Need to send an email notification to admin, there was a download request
+        # Save the download log
+        $downloadLog = new DownloadLog([
+            'web_form_id' => (int) $request->webform_id,
+            'form_id' => $request->form_id,
+            'uuid' => $request->uuid !== "null" ? $request->uuid : null,
+            'filepath' => $filepath,
+            'status' => $status ? $status : "requested",
+            'request_by' => $user->id,
+        ]);
+        $downloadLog->save();
+        return $downloadLog;
     }
 }
