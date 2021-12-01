@@ -36,11 +36,11 @@ class DownloadLog extends Model
 
     public function requested()
     {
-        return $this->belongsTo('\App\Models\User');
+        return $this->belongsTo('\App\Models\User', 'request_by', 'id');
     }
 
     public function approved()
     {
-        return $this->belongsTo('\App\Models\User');
+        return $this->belongsTo('\App\Models\User', 'approved_by', 'id');
     }
 }

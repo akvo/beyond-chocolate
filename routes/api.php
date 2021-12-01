@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Contracts\Encryption\DecryptException;
 use App\Http\Controllers\FlowDataSeedController;
 use App\Http\Controllers\FlowDataSyncController;
+use App\Http\Controllers\DownloadLogController;
 
 /*
 |--------------------------------------------------------------------------
@@ -187,5 +188,7 @@ Route::middleware(['auth:sanctum'])->get('/submissions/sync-download/{webform_id
 Route::get('/flow/initial-seed/{password}', [FlowDataSeedController::class, 'initialSeed']); # INITIAL SEEDER FLOW DATA
 Route::get('/flow/sync', [FlowDataSyncController::class, 'syncData']); # SYNC DATA USING FLOW SYNC API
 
-
 Route::get('/flow/all-csv/{password}', [SubmissionController::class, 'allCsv']); # generate-all-csvs
+
+#Download Log
+Route::middleware(['auth:sanctum'])->get('/download-log', [DownloadLogController::class, 'getAllDownloadLog']);
