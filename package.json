@@ -44,5 +44,9 @@
             "last 1 firefox version",
             "last 1 safari version"
         ]
+    },
+    "dependencies": {
+        "d3-request": "^1.0.6",
+        "react-data-table-component": "^7.4.5"
     }
 }

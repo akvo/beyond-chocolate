@@ -14,6 +14,7 @@ export default {
         faq: "/faq",
         gettingStarted: "/getting-started",
         submission: "/submission",
+        manageDownload: "/manage-download",
     },
-    userLanding: "/home"
+    userLanding: "/home",
 };

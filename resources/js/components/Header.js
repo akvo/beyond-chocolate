@@ -1,17 +1,18 @@
-import React, { useState } from 'react';
-import { Navbar, Nav, NavDropdown, Form, FormControl } from 'react-bootstrap';
+import React, { useState } from "react";
+import { Navbar, Nav, NavDropdown, Form, FormControl } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faUser,
     faCog,
     faUsers,
     faSignOutAlt,
-    faGlobeEurope
+    faGlobeEurope,
+    faFileDownload,
 } from "@fortawesome/free-solid-svg-icons";
-import { Link, NavLink } from 'react-router-dom';
-import { uiText } from '../static/ui-text';
-import config from '../config';
-import { useLocale, langs } from '../lib/locale-context';
+import { Link, NavLink } from "react-router-dom";
+import { uiText } from "../static/ui-text";
+import config from "../config";
+import { useLocale, langs } from "../lib/locale-context";
 import { useAuth } from "./auth-context";
 import Locale from "./Locale.js";
 import { SaveFormModal } from "./Modal";
@@ -43,6 +44,8 @@ const Header = ({ formLoaded, setFormLoaded }) => {
         window.location.reload();
     };
 
+    console.log(user);
+
     return (
         <Navbar bg="light">
             {showNavBarMenu && (
@@ -53,28 +56,40 @@ const Header = ({ formLoaded, setFormLoaded }) => {
                     <Nav className="mr-auto">
                         {user?.verified && (
                             <>
-                                <Nav.Link as={NavLink} to={config.routes.survey}>
-                                    { text.navSurvey }
+                                <Nav.Link
+                                    as={NavLink}
+                                    to={config.routes.survey}
+                                >
+                                    {text.navSurvey}
                                 </Nav.Link>
 
-                                <Nav.Link as={NavLink} to={config.routes.submission}>
-                                    { text.btnDownload }
+                                <Nav.Link
+                                    as={NavLink}
+                                    to={config.routes.submission}
+                                >
+                                    {text.btnDownload}
                                 </Nav.Link>
                             </>
                         )}
                         <Nav.Link as={NavLink} to={config.routes.definition}>
-                            { text.navDefinitions }
+                            {text.navDefinitions}
                         </Nav.Link>
                         {user?.verified && (
                             <>
-                                <Nav.Link as={NavLink} to={config.routes.feedback}>
-                                    { text.navFeedback }
+                                <Nav.Link
+                                    as={NavLink}
+                                    to={config.routes.feedback}
+                                >
+                                    {text.navFeedback}
                                 </Nav.Link>
-                                <Nav.Link as={NavLink} to={config.routes.impressum}>
-                                    { text.textFooterImpressum }
+                                <Nav.Link
+                                    as={NavLink}
+                                    to={config.routes.impressum}
+                                >
+                                    {text.textFooterImpressum}
                                 </Nav.Link>
                                 <Nav.Link as={NavLink} to={config.routes.faq}>
-                                    { text.textFooterFaq }
+                                    {text.textFooterFaq}
                                 </Nav.Link>
                             </>
                         )}
@@ -84,16 +99,13 @@ const Header = ({ formLoaded, setFormLoaded }) => {
             <Navbar.Collapse className="justify-content-end">
                 <Locale locale={locale} updateLocale={update} />
             </Navbar.Collapse>
-            {(showNavBarMenu && user) && (
+            {showNavBarMenu && user && (
                 <NavDropdown
                     alignRight
                     title={
                         <>
-                        <FontAwesomeIcon
-                            className="mr-2"
-                            icon={faUser}
-                        />
-                            { user.name }
+                            <FontAwesomeIcon className="mr-2" icon={faUser} />
+                            {user.name}
                         </>
                     }
                 >
@@ -107,7 +119,7 @@ const Header = ({ formLoaded, setFormLoaded }) => {
                                     className="mr-2"
                                     icon={faCog}
                                 />
-                                { text.navSetting }
+                                {text.navSetting}
                             </NavDropdown.Item>
                             {user.can("manage-users") && (
                                 <NavDropdown.Item
@@ -118,26 +130,38 @@ const Header = ({ formLoaded, setFormLoaded }) => {
                                         className="mr-2"
                                         icon={faUsers}
                                     />
-                                    { text.navManageUser }
+                                    {text.navManageUser}
+                                </NavDropdown.Item>
+                            )}
+                            {user.can("manage-users") && (
+                                <NavDropdown.Item
+                                    as={NavLink}
+                                    to={config.routes.manageDownload}
+                                >
+                                    <FontAwesomeIcon
+                                        className="ml-1 mr-2"
+                                        icon={faFileDownload}
+                                    />
+                                    {text.navManageDownloadRequest}
                                 </NavDropdown.Item>
                             )}
                             <NavDropdown.Divider />
                         </>
                     )}
                     <NavDropdown.Item
-                        onClick={e => formLoaded ? setShowSavePrompt(true) : endSession() }>
-                        <FontAwesomeIcon
-                            className="mr-2"
-                            icon={faSignOutAlt}
-                        />
-                        { text.navLogout }
+                        onClick={(e) =>
+                            formLoaded ? setShowSavePrompt(true) : endSession()
+                        }
+                    >
+                        <FontAwesomeIcon className="mr-2" icon={faSignOutAlt} />
+                        {text.navLogout}
                     </NavDropdown.Item>
                 </NavDropdown>
             )}
             <SaveFormModal
                 text={text}
                 show={showSavePrompt}
-                onHide={e => setShowSavePrompt(false)}
+                onHide={(e) => setShowSavePrompt(false)}
                 onConfirm={endSession}
             />
         </Navbar>
