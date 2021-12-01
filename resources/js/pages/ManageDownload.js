@@ -5,23 +5,50 @@ import {
     Col,
     Table,
     Button,
+    Stack,
     Spinner,
     Alert,
 } from "react-bootstrap";
 import { csv } from "d3-request";
 import DataTable from "react-data-table-component";
+import request from "../lib/request";
 import { uiText } from "../static/ui-text";
 import { useLocale } from "../lib/locale-context";
+import takeRight from "lodash/takeRight";
+import isEmpty from "lodash/isEmpty";
 
 const ManageDownload = () => {
     const { locale } = useLocale();
+    const [log, setLog] = useState([]);
     const [isViewFile, setIsViewFile] = useState(false);
     const [fileLoaded, setFileLoaded] = useState({});
     let text = uiText[locale.active];
 
-    useEffect(() => {
-        csv("uploads/idh/C-Retail-Joy.csv", (error, data) => {
-            if (error) throw error;
+    useEffect(async () => {
+        const { data, status } = await request().get("/api/download-log");
+        if (status === 200) {
+            const result = data?.map((d) => {
+                let filename = d?.filepath?.split("/");
+                filename = takeRight(filename)[0];
+                return {
+                    ...d,
+                    filename: filename,
+                };
+            });
+            setLog(result);
+        } else {
+            console.log("error");
+        }
+    }, []);
+
+    const handleViewButton = ({ filepath, filename }) => {
+        console.log(filepath, filename);
+        setIsViewFile(true);
+        csv(filepath, (error, data) => {
+            if (error) {
+                setFileLoaded({ data: [], columns: [] });
+                throw error;
+            }
             const columns = data?.columns?.map((col) => {
                 let width = "5%";
                 if (col === "repeat") {
@@ -49,7 +76,7 @@ const ManageDownload = () => {
             });
             setFileLoaded({ data: dataTemp, columns: columns });
         });
-    }, []);
+    };
 
     return (
         <Container fluid>
@@ -67,11 +94,58 @@ const ManageDownload = () => {
                                 <th className="pl-3">{text.tbColAction}</th>
                             </tr>
                         </thead>
-                        {/* <tbody>{renderSubmissions()}</tbody> */}
+                        <tbody>
+                            {log.map((l, li) => (
+                                <tr key={`${l.filename}-${li}`}>
+                                    <td>{l?.filename || ""}</td>
+                                    <td>{l?.request_by?.email || ""}</td>
+                                    <td>
+                                        <Button
+                                            variant="info"
+                                            size="sm"
+                                            onClick={() => handleViewButton(l)}
+                                        >
+                                            View
+                                        </Button>
+                                        <Button
+                                            variant="primary"
+                                            size="sm"
+                                            style={{ marginLeft: "8px" }}
+                                            onClick={() =>
+                                                console.log(
+                                                    "TODO::add action to this button"
+                                                )
+                                            }
+                                        >
+                                            Approve
+                                        </Button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
                     </Table>
                 </Col>
             </Row>
-            {isViewFile && (
+            {isViewFile && isEmpty(fileLoaded) && (
+                <div
+                    style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                    }}
+                    className="mb-3"
+                >
+                    <Spinner
+                        animation="border"
+                        role="status"
+                        size="sm"
+                        variant="info"
+                    >
+                        <span className="sr-only">Loading...</span>
+                    </Spinner>
+                </div>
+            )}
+            {isViewFile && !isEmpty(fileLoaded) && (
                 <Row className="justify-content-center">
                     <Col id="fileLoadedTmp" className="mx-auto" md="10">
                         <DataTable

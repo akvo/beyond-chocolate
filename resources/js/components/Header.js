@@ -44,8 +44,6 @@ const Header = ({ formLoaded, setFormLoaded }) => {
         window.location.reload();
     };
 
-    console.log(user);
-
     return (
         <Navbar bg="light">
             {showNavBarMenu && (
