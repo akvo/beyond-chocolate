@@ -26,7 +26,7 @@ const defData = [
 const Submission = () => {
     const { locale } = useLocale();
     const [submissions, setSubmissions] = useState(defData);
-    const [btnLoading, setBtnLoading] = useState([]);
+    const [reload, setReload] = useState(false);
     const [isError, setIsError] = useState({ show: false, msg: null });
     const [isDelay, setIsDelay] = useState(true); // to delay the download button for 60 seconds
 
@@ -49,7 +49,8 @@ const Submission = () => {
         let results = data.map((x) => ({ ...x, isLoading: false }));
         setSubmissions(results);
         delayInterval;
-    }, []);
+        setReload(false);
+    }, [reload]);
 
     const setLoading = (id, status) => {
         let updateSubmissions = submissions.map((x) => {
@@ -63,8 +64,6 @@ const Submission = () => {
 
     const handleDownload = async (item) => {
         // # TODO :: change this api link to sync data
-        // const { id, form_id, form_name, submitter_name } = item;
-        // setLoading(id, true);
         const { uuid, form_id, form_name, submitter_name, id } = item;
         setLoading(uuid, true);
         const filename =
@@ -75,17 +74,16 @@ const Submission = () => {
         const { data, status } = await request().get(
             `/api/submissions/sync-download/${id}/${form_id}/${uuid}/${filename}`
         );
-        if (status === 200) {
-            console.log(filename, data);
-
+        if (status === 200 || status === 201) {
             // const link = document.createElement("a");
             // link.href = data.link;
             // document.body.appendChild(link);
             // link.click();
             // document.body.removeChild(link);
-
+            //
             // # TODO :: success generate, save request log to download_logs,
             // or saved it from controller endpoint
+            setReload(true);
         } else {
             // create error notif
             let msg =
@@ -136,6 +134,16 @@ const Submission = () => {
                     ? 2019
                     : calculateYear(x.updated_at)
                 : "Loading";
+            // manage button text & disabled
+            let isDisabled = delay && isDelay ? true : x.isLoading;
+            let btnText = text.btnRequestToDownload;
+            if (x?.download_status === "requested") {
+                isDisabled = true;
+                btnText = text.btnWaitingApproval;
+            }
+            if (x?.download_status === "approved") {
+                btnText = text.btnDownload;
+            }
             return (
                 <tr key={"submission-" + i}>
                     <td className="pl-3">{x.org_name}</td>
@@ -147,7 +155,7 @@ const Submission = () => {
                             key={"btnDownload-" + i}
                             variant="primary"
                             size="sm"
-                            disabled={delay && isDelay ? true : x.isLoading}
+                            disabled={isDisabled}
                             onClick={
                                 !x.isLoading ? () => handleDownload(x) : null
                             }
@@ -167,7 +175,7 @@ const Submission = () => {
                                             : text.btnGenerating)}
                                 </>
                             ) : (
-                                text.btnDownload
+                                btnText
                             )}
                         </Button>
                     </td>
