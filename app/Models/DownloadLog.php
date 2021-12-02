@@ -21,7 +21,7 @@ class DownloadLog extends Model
         'filepath',
         'status',
         'request_by',
-        'approved_by',
+        'approve_by',
     ];
 
     public function webform()
@@ -41,6 +41,6 @@ class DownloadLog extends Model
 
     public function approved()
     {
-        return $this->belongsTo('\App\Models\User', 'approved_by', 'id');
+        return $this->belongsTo('\App\Models\User', 'approve_by', 'id');
     }
 }

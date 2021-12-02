@@ -19,9 +19,9 @@ class CreateDownloadLogsTable extends Migration
             $table->foreignId('form_id')->constrained();
             $table->string('uuid')->nullable();
             $table->string('filepath')->nullable();
-            $table->enum('status', ['requested', 'approved']);
+            $table->enum('status', ['requested', 'approved', 'rejected']);
             $table->unsignedBigInteger('request_by');
-            $table->unsignedBigInteger('approved_by')->nullable();
+            $table->unsignedBigInteger('approve_by')->nullable();
             $table->timestamps();
 
             $table->foreign('request_by')->references('id')->on('users');
