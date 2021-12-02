@@ -25,6 +25,7 @@ use Illuminate\Contracts\Encryption\DecryptException;
 use App\Http\Controllers\FlowDataSeedController;
 use App\Http\Controllers\FlowDataSyncController;
 use App\Http\Controllers\DownloadLogController;
+use App\Http\Controllers\TwilioController;
 
 /*
 |--------------------------------------------------------------------------
@@ -193,3 +194,6 @@ Route::get('/flow/all-csv/{password}', [SubmissionController::class, 'allCsv']);
 #Download Log
 Route::middleware(['auth:sanctum'])->get('/download-log', [DownloadLogController::class, 'getAllDownloadLog']);
 Route::middleware(['auth:sanctum'])->patch('/download-log/update-status/{id}', [DownloadLogController::class, 'updateDownloadLogStatus']);
+
+# Test Twilio
+// Route::get('/twilio-test', [TwilioController::class, 'sendOtpCode']);

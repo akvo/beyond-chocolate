@@ -20,7 +20,8 @@
         "laravel/tinker": "^2.5",
         "league/csv": "^9.6",
         "socialiteproviders/microsoft-azure": "^4.2",
-        "thedoctor0/laravel-mailjet-driver": "^1.0"
+        "thedoctor0/laravel-mailjet-driver": "^1.0",
+        "twilio/sdk": "^6.31"
     },
     "require-dev": {
         "facade/ignition": "^2.5",
