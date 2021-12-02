@@ -5,17 +5,39 @@ import {
     Col,
     Table,
     Button,
-    Stack,
     Spinner,
     Alert,
 } from "react-bootstrap";
 import { csv } from "d3-request";
 import DataTable from "react-data-table-component";
 import request from "../lib/request";
+import { FullScreenModal } from "../components/Modal";
 import { uiText } from "../static/ui-text";
 import { useLocale } from "../lib/locale-context";
 import takeRight from "lodash/takeRight";
 import isEmpty from "lodash/isEmpty";
+
+const datatableCustomStyle = {
+    headCells: {
+        style: {
+            background: "#673016",
+            color: "#fff",
+            fontWeight: "bold",
+        },
+    },
+};
+
+const Loading = () => (
+    <Spinner
+        animation="border"
+        role="status"
+        size="sm"
+        variant="info"
+        style={{ marginTop: "10vh" }}
+    >
+        <span className="sr-only">Loading...</span>
+    </Spinner>
+);
 
 const ManageDownload = () => {
     const { locale } = useLocale();
@@ -44,38 +66,45 @@ const ManageDownload = () => {
     const handleViewButton = ({ filepath, filename }) => {
         console.log(filepath, filename);
         setIsViewFile(true);
-        csv(filepath, (error, data) => {
-            if (error) {
-                setFileLoaded({ data: [], columns: [] });
-                throw error;
+        csv(
+            "uploads/Projects-Testing26 January 2021 - wayan-ArleneRoberts.csv",
+            (error, data) => {
+                if (error) {
+                    setFileLoaded({ title: filename, data: [], columns: [] });
+                    throw error;
+                }
+                const columns = data?.columns?.map((col) => {
+                    let width = "5%";
+                    if (col === "repeat") {
+                        width = "7%";
+                    }
+                    if (col === "groupName") {
+                        width = "15%";
+                    }
+                    if (col === "question" || col === "answer") {
+                        width = "34%";
+                    }
+                    return {
+                        id: col,
+                        name: col,
+                        width: width,
+                        wrap: true,
+                        selector: (row) => row[col],
+                    };
+                });
+                const dataTemp = data?.map((d, di) => {
+                    return {
+                        id: di + 1,
+                        ...d,
+                    };
+                });
+                setFileLoaded({
+                    title: filename,
+                    data: dataTemp,
+                    columns: columns,
+                });
             }
-            const columns = data?.columns?.map((col) => {
-                let width = "5%";
-                if (col === "repeat") {
-                    width = "7%";
-                }
-                if (col === "groupName") {
-                    width = "15%";
-                }
-                if (col === "question" || col === "answer") {
-                    width = "34%";
-                }
-                return {
-                    id: col,
-                    name: col,
-                    width: width,
-                    wrap: true,
-                    selector: (row) => row[col],
-                };
-            });
-            const dataTemp = data?.map((d, di) => {
-                return {
-                    id: di + 1,
-                    ...d,
-                };
-            });
-            setFileLoaded({ data: dataTemp, columns: columns });
-        });
+        );
     };
 
     return (
@@ -119,6 +148,18 @@ const ManageDownload = () => {
                                         >
                                             Approve
                                         </Button>
+                                        <Button
+                                            variant="danger"
+                                            size="sm"
+                                            style={{ marginLeft: "8px" }}
+                                            onClick={() =>
+                                                console.log(
+                                                    "TODO::add action to this button"
+                                                )
+                                            }
+                                        >
+                                            Reject
+                                        </Button>
                                     </td>
                                 </tr>
                             ))}
@@ -126,36 +167,27 @@ const ManageDownload = () => {
                     </Table>
                 </Col>
             </Row>
-            {isViewFile && isEmpty(fileLoaded) && (
-                <div
-                    style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                    }}
-                    className="mb-3"
-                >
-                    <Spinner
-                        animation="border"
-                        role="status"
-                        size="sm"
-                        variant="info"
-                    >
-                        <span className="sr-only">Loading...</span>
-                    </Spinner>
-                </div>
-            )}
-            {isViewFile && !isEmpty(fileLoaded) && (
-                <Row className="justify-content-center">
-                    <Col id="fileLoadedTmp" className="mx-auto" md="10">
-                        <DataTable
-                            columns={fileLoaded?.columns || []}
-                            data={fileLoaded?.data || []}
-                            pagination
-                        />
-                    </Col>
-                </Row>
-            )}
+            <FullScreenModal
+                text={text}
+                title={fileLoaded?.title || ""}
+                show={isViewFile}
+                handleClose={() => setIsViewFile(false)}
+                content={
+                    <Row className="justify-content-center">
+                        <Col id="fileLoadedTmp" className="mx-auto" md="12">
+                            <DataTable
+                                columns={fileLoaded?.columns || []}
+                                data={fileLoaded?.data || []}
+                                fixedHeader
+                                fixedHeaderScrollHeight="70vh"
+                                progressPending={isEmpty(fileLoaded)}
+                                progressComponent={<Loading />}
+                                customStyles={datatableCustomStyle}
+                            />
+                        </Col>
+                    </Row>
+                }
+            />
         </Container>
     );
 };
