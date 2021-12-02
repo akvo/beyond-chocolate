@@ -147,16 +147,18 @@ const ManageDownload = () => {
                     <Table bordered hover responsive size="sm">
                         <thead>
                             <tr>
-                                <th className="pl-3">Filename</th>
-                                <th className="pl-3">Status</th>
-                                <th className="pl-3">Request By</th>
+                                <th className="pl-3">{text.tbColFilename}</th>
+                                <th className="pl-3">{text.tbColStatus}</th>
+                                <th className="pl-3">{text.tbColRequestBy}</th>
                                 <th className="pl-3">{text.tbColAction}</th>
                             </tr>
                         </thead>
                         <tbody>
                             {log.map((l, li) => (
                                 <tr key={`${l.filename}-${li}`}>
-                                    <td>{l?.filename || ""}</td>
+                                    <td className="pl-3">
+                                        {l?.filename || ""}
+                                    </td>
                                     <td className="pl-3">
                                         <Badge
                                             variant={
@@ -170,8 +172,10 @@ const ManageDownload = () => {
                                             {l?.status}
                                         </Badge>
                                     </td>
-                                    <td>{l?.request_by?.email || ""}</td>
-                                    <td>
+                                    <td className="pl-3">
+                                        {l?.request_by?.email || ""}
+                                    </td>
+                                    <td className="pl-3">
                                         <Button
                                             variant="info"
                                             size="sm"

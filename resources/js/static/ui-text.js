@@ -96,6 +96,9 @@ export const uiText = {
         tbColForm: "Form",
         tbColYear: "Year",
         tbColAction: "Action",
+        tbColFilename: "Filename",
+        tbColStatus: "Status",
+        tbColRequestBy: "Request By",
         tbRowNoRecords: "There are no records to display.",
         // Modal
         modalDataSecurity: "Data Security Provisions",
@@ -265,6 +268,9 @@ export const uiText = {
         tbColForm: "Formular",
         tbColYear: "Jahr",
         tbColAction: "Aktion",
+        tbColFilename: "Filename",
+        tbColStatus: "Status",
+        tbColRequestBy: "Request By",
         tbRowNoRecords: "Keine Daten vorhanden.",
         // Modal
         modalDataSecurity: "Datensicherheitsmaßnahmen",
