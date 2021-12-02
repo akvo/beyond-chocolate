@@ -114,6 +114,7 @@ Falls Sie Schwierigkeiten haben, können Sie $signed_de kontaktieren oder das Fe
     {
         $mails = new Mails();;
         $footer = "Cocoa Monitoring";
+
         # all admin recipients
         if (env('APP_ENV') === 'production') {
             $admins = User::where('role', 'admin')->get()->pluck('email');
@@ -121,19 +122,47 @@ Falls Sie Schwierigkeiten haben, können Sie $signed_de kontaktieren oder das Fe
         if (env('APP_ENV') === 'local') {
             $admins = explode(",", env('DEVELOPMENT_EMAIL_RECIPIENT'));
         }
+
+        # filename
+        $filename =explode("/", $data->filepath);
+        $filename = $filename[count($filename) - 1];
+
+        # request
+        $request_by = User::find($data->request_by);
+
         $recipients = collect($admins)->map(function($address){
             return [
                 'Email' => $address
             ];
         });
 
-        $subject = "Data Download Request";
-        $body = "Request data download for filename, username";
-        $text = "Data download request from:";
+        $subject = "Data download request";
+        $body = "Request data download for $filename, from $request_by->email.<br/>
+                See <a href='".env('APP_URL')."/manage-download'>here</a>.";
+        $text = "Data download request";
         $response = $mails->sendEmail($recipients, false, $subject, $body, $text);
 
         return response([
             'message' => 'Download request notification has been sent!', 'mails' => $response
+        ]);
+    }
+
+    public function informUserDataDownloadEmail($data)
+    {
+        $user = User::find($data->request_by);
+
+        $mails = new Mails();;
+        $footer = "Cocoa Monitoring";
+        $recipients = [['Email' => $user->email, 'Name' => $user->name]];
+
+        $subject = "Data download $data->status";
+        $body = "Request data download $data->status.<br/>
+                See <a href='".env('APP_URL')."/submission'>here</a>.";
+        $text = "Data download $data->status";
+        $response = $mails->sendEmail($recipients, false, $subject, $body, $text);
+
+        return response([
+            'message' => 'The user has been informed!', 'mails' => $response
         ]);
     }
 

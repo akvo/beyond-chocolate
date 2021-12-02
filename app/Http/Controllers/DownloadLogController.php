@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\DownloadLog;
+use App\Http\Controllers\EmailController;
 
 class DownloadLogController extends Controller
 {
@@ -33,7 +34,8 @@ class DownloadLogController extends Controller
         $log->save();
 
         # TODO:: send notification email to user
+        $email = new EmailController();
 
-        return $log;
+        return $email->informUserDataDownloadEmail($log);
     }
 }
