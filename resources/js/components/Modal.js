@@ -95,10 +95,10 @@ const FullScreenModal = ({
             <Modal.Body>{content}</Modal.Body>
             <Modal.Footer>
                 <Button variant="primary" onClick={handleApprove}>
-                    Approve
+                    {text.btnApprove}
                 </Button>
                 <Button variant="danger" onClick={handleReject}>
-                    Reject
+                    {text.btnReject}
                 </Button>
             </Modal.Footer>
         </Modal>

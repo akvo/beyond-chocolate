@@ -145,7 +145,7 @@ const Submission = () => {
                 btnText = text.btnDownload;
             }
             if (x?.download_status === "rejected") {
-                btnText = "Rejected";
+                btnText = text.btnRejected;
             }
             return (
                 <tr key={"submission-" + i}>

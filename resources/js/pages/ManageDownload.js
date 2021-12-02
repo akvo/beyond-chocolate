@@ -177,7 +177,7 @@ const ManageDownload = () => {
                                             size="sm"
                                             onClick={() => handleViewButton(l)}
                                         >
-                                            View
+                                            {text.btnView}
                                         </Button>
                                         <Button
                                             variant="primary"
@@ -204,7 +204,7 @@ const ManageDownload = () => {
                                                         }}
                                                     />
                                                 )}
-                                                Approve
+                                                {text.btnApprove}
                                             </>
                                         </Button>
                                         <Button
@@ -218,7 +218,7 @@ const ManageDownload = () => {
                                                 )
                                             }
                                         >
-                                            Reject
+                                            {text.btnReject}
                                         </Button>
                                     </td>
                                 </tr>

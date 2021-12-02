@@ -81,6 +81,10 @@ export const uiText = {
         btnUploading: "Uploading",
         btnRequestToDownload: "Request to Download",
         btnWaitingApproval: "Waiting for Approval",
+        btnApprove: "Approve",
+        btnReject: "Reject",
+        btnRejected: "Rejected",
+        btnView: "View",
         // Table
         tbColName: "Name",
         tbColEmail: "Email",
@@ -246,6 +250,10 @@ export const uiText = {
         btnUploading: "Uploading",
         btnRequestToDownload: "Request to Download",
         btnWaitingApproval: "Waiting for Approval",
+        btnApprove: "Approve",
+        btnReject: "Reject",
+        btnRejected: "Rejected",
+        btnView: "View",
         // Table
         tbColName: "Name",
         tbColEmail: "Email",
