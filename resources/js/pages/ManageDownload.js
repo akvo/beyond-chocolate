@@ -136,6 +136,78 @@ const ManageDownload = () => {
         setIsViewFile(false);
     };
 
+    const renderLogTable = () => {
+        if (log.length === 0) {
+            return (
+                <tr key="submission-no-data">
+                    <td colSpan="4" className="pl-3 text-muted text-center">
+                        {text.infoNoDownloadRequest}
+                    </td>
+                </tr>
+            );
+        }
+
+        return log.map((l, li) => (
+            <tr key={`${l.filename}-${li}`}>
+                <td className="pl-3">{l?.filename || ""}</td>
+                <td className="pl-3">
+                    <Badge
+                        variant={
+                            l?.status === "requested"
+                                ? "secondary"
+                                : l?.status === "rejected"
+                                ? "danger"
+                                : "success"
+                        }
+                    >
+                        {l?.status}
+                    </Badge>
+                </td>
+                <td className="pl-3">{l?.request_by?.email || ""}</td>
+                <td className="pl-3">
+                    <Button
+                        variant="info"
+                        size="sm"
+                        onClick={() => handleViewButton(l)}
+                    >
+                        {text.btnView}
+                    </Button>
+                    <Button
+                        variant="primary"
+                        size="sm"
+                        style={{ marginLeft: "8px" }}
+                        onClick={() => handleApproveRejectButton(l, "approved")}
+                        disabled={l?.isLoading}
+                    >
+                        <>
+                            {l?.isLoading && (
+                                <Spinner
+                                    as="span"
+                                    animation="border"
+                                    size="sm"
+                                    role="status"
+                                    aria-hidden="true"
+                                    style={{
+                                        marginRight: "8px",
+                                    }}
+                                />
+                            )}
+                            {text.btnApprove}
+                        </>
+                    </Button>
+                    <Button
+                        variant="danger"
+                        size="sm"
+                        style={{ marginLeft: "8px" }}
+                        onClick={() => handleApproveRejectButton(l, "rejected")}
+                    >
+                        {text.btnReject}
+                    </Button>
+                </td>
+            </tr>
+        ));
+    };
+
     return (
         <Container fluid>
             <Row className="justify-content-center">
@@ -153,81 +225,7 @@ const ManageDownload = () => {
                                 <th className="pl-3">{text.tbColAction}</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            {log.map((l, li) => (
-                                <tr key={`${l.filename}-${li}`}>
-                                    <td className="pl-3">
-                                        {l?.filename || ""}
-                                    </td>
-                                    <td className="pl-3">
-                                        <Badge
-                                            variant={
-                                                l?.status === "requested"
-                                                    ? "secondary"
-                                                    : l?.status === "rejected"
-                                                    ? "danger"
-                                                    : "success"
-                                            }
-                                        >
-                                            {l?.status}
-                                        </Badge>
-                                    </td>
-                                    <td className="pl-3">
-                                        {l?.request_by?.email || ""}
-                                    </td>
-                                    <td className="pl-3">
-                                        <Button
-                                            variant="info"
-                                            size="sm"
-                                            onClick={() => handleViewButton(l)}
-                                        >
-                                            {text.btnView}
-                                        </Button>
-                                        <Button
-                                            variant="primary"
-                                            size="sm"
-                                            style={{ marginLeft: "8px" }}
-                                            onClick={() =>
-                                                handleApproveRejectButton(
-                                                    l,
-                                                    "approved"
-                                                )
-                                            }
-                                            disabled={l?.isLoading}
-                                        >
-                                            <>
-                                                {l?.isLoading && (
-                                                    <Spinner
-                                                        as="span"
-                                                        animation="border"
-                                                        size="sm"
-                                                        role="status"
-                                                        aria-hidden="true"
-                                                        style={{
-                                                            marginRight: "8px",
-                                                        }}
-                                                    />
-                                                )}
-                                                {text.btnApprove}
-                                            </>
-                                        </Button>
-                                        <Button
-                                            variant="danger"
-                                            size="sm"
-                                            style={{ marginLeft: "8px" }}
-                                            onClick={() =>
-                                                handleApproveRejectButton(
-                                                    l,
-                                                    "rejected"
-                                                )
-                                            }
-                                        >
-                                            {text.btnReject}
-                                        </Button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
+                        <tbody>{renderLogTable()}</tbody>
                     </Table>
                 </Col>
             </Row>

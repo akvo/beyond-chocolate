@@ -164,6 +164,7 @@ export const uiText = {
         // collaborators
         btnCollaborators: "Add collaborator for joint projects",
         infoNoSubmittedData: "No Submitted Data",
+        infoNoDownloadRequest: "No Download Request",
         textInfoSubmission:
             "There's maybe a slight delay between a submission made and data being ready to download.",
         dwnLOfSubmissions: "Download of submissions",
@@ -340,6 +341,7 @@ export const uiText = {
         // collaborators
         btnCollaborators: "Partner für gemeinsame Projekte hinzufügen",
         infoNoSubmittedData: "No Submitted Data",
+        infoNoDownloadRequest: "No Download Request",
         // Download
         textInfoSubmission:
             "Es kann zu einer leichten Verzögerung kommen, bis die eingereichten Daten zum Download bereitstehen.",
