@@ -777,6 +777,22 @@ footer {
     }
 }
 
+// custom modal size
 .fullscreen-modal {
-    width: 100% !important;
+    width: 90% !important;
+}
+@media (min-width: 1200px) {
+    .fullscreen-modal.modal-xl {
+        max-width: 100%;
+    }
+}
+@media (min-width: 992px) {
+    .fullscreen-modal.modal-xl {
+        max-width: 100%;
+    }
+}
+@media (min-width: 576px) {
+    .fullscreen-modal.modal-xl {
+        max-width: 100%;
+    }
 }
