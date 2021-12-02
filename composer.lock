@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6ccac0fb21042c93a32a503fd1407486",
+    "content-hash": "968bcfaa950182b0f83fcfd14a6f917a",
     "packages": [
         {
             "name": "akvo/akvo-flow-php-sdk",
@@ -8461,7 +8461,7 @@
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
-        "php": "^7.3"
+        "php": "^7.3|^8.0"
     },
     "platform-dev": [],
     "plugin-api-version": "2.0.0"
