@@ -17,6 +17,7 @@ import { uiText } from "../static/ui-text";
 import { useLocale } from "../lib/locale-context";
 import takeRight from "lodash/takeRight";
 import isEmpty from "lodash/isEmpty";
+import { useAuth } from "../components/auth-context";
 
 const datatableCustomStyle = {
     headCells: {
@@ -42,6 +43,7 @@ const Loading = () => (
 
 const ManageDownload = () => {
     const { locale } = useLocale();
+    const { user } = useAuth();
     const [log, setLog] = useState([]);
     const [reload, setReload] = useState(false);
     const [isViewFile, setIsViewFile] = useState(false);
@@ -122,6 +124,12 @@ const ManageDownload = () => {
     };
 
     const handleApproveRejectButton = async (selected, logStatus) => {
+        /** # TODO:: Send OTP, then show form to input OTP,
+         * after that continue with OTP code check
+         * then approve/reject process */
+        // const test = await request().get(
+        //     `/api/verification/send-otp/${user?.id}`
+        // );
         setLoading(selected?.id, true);
         const { data, status } = await request().patch(
             `/api/download-log/update-status/${selected?.id}`,

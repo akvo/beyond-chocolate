@@ -4,14 +4,26 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Twilio\Rest\Client;
+use App\Models\User;
 
 class TwilioController extends Controller
 {
-    public function sendOtpCode()
+    public function sendOtpCode(Request $request)
     {
-        $recipients = config('twilio.test_recipient_number');
-        $msg = "OTP Code : 623451";
-        return $this->sendMessage($msg, $recipients);
+        # TODO:: Generate OTP code, then send to user & save to user table;
+        $code = substr(number_format(time() * rand(),0,'',''),0,6);
+        $user = User::find($request->user);
+        $recipients = $user->phone_number;
+        $msg = "OTP Code : $code";
+        $send = $this->sendMessage($msg, $recipients);
+
+        # update otp_code to users table
+        if ($send) {
+            $user->otp_code = $code;
+            $user->save();
+            return $user;
+        }
+        return $send;
     }
 
     /**

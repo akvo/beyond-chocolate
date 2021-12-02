@@ -195,5 +195,5 @@ Route::get('/flow/all-csv/{password}', [SubmissionController::class, 'allCsv']);
 Route::middleware(['auth:sanctum'])->get('/download-log', [DownloadLogController::class, 'getAllDownloadLog']);
 Route::middleware(['auth:sanctum'])->patch('/download-log/update-status/{id}', [DownloadLogController::class, 'updateDownloadLogStatus']);
 
-# Test Twilio
-// Route::get('/twilio-test', [TwilioController::class, 'sendOtpCode']);
+# OTP Code
+Route::middleware(['auth:sanctum'])->get('/verification/send-otp/{user}', [TwilioController::class, 'sendOtpCode']);
