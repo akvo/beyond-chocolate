@@ -7,6 +7,7 @@ import {
     Button,
     Spinner,
     Alert,
+    Badge,
 } from "react-bootstrap";
 import { csv } from "d3-request";
 import DataTable from "react-data-table-component";
@@ -42,6 +43,7 @@ const Loading = () => (
 const ManageDownload = () => {
     const { locale } = useLocale();
     const [log, setLog] = useState([]);
+    const [reload, setReload] = useState(false);
     const [isViewFile, setIsViewFile] = useState(false);
     const [fileLoaded, setFileLoaded] = useState({});
     let text = uiText[locale.active];
@@ -55,56 +57,83 @@ const ManageDownload = () => {
                 return {
                     ...d,
                     filename: filename,
+                    isLoading: false,
                 };
             });
             setLog(result);
-        } else {
-            console.log("error");
         }
-    }, []);
+        setReload(false);
+    }, [reload]);
 
-    const handleViewButton = ({ filepath, filename }) => {
-        console.log(filepath, filename);
+    const handleViewButton = ({ id, filepath, filename }) => {
         setIsViewFile(true);
-        csv(
-            "uploads/Projects-Testing26 January 2021 - wayan-ArleneRoberts.csv",
-            (error, data) => {
-                if (error) {
-                    setFileLoaded({ title: filename, data: [], columns: [] });
-                    throw error;
-                }
-                const columns = data?.columns?.map((col) => {
-                    let width = "5%";
-                    if (col === "repeat") {
-                        width = "7%";
-                    }
-                    if (col === "groupName") {
-                        width = "15%";
-                    }
-                    if (col === "question" || col === "answer") {
-                        width = "34%";
-                    }
-                    return {
-                        id: col,
-                        name: col,
-                        width: width,
-                        wrap: true,
-                        selector: (row) => row[col],
-                    };
-                });
-                const dataTemp = data?.map((d, di) => {
-                    return {
-                        id: di + 1,
-                        ...d,
-                    };
-                });
+        csv(filepath, (error, data) => {
+            if (error) {
                 setFileLoaded({
+                    id: id,
                     title: filename,
-                    data: dataTemp,
-                    columns: columns,
+                    data: [],
+                    columns: [],
                 });
+                throw error;
+            }
+            const columns = data?.columns?.map((col) => {
+                let width = "5%";
+                if (col === "repeat") {
+                    width = "7%";
+                }
+                if (col === "groupName") {
+                    width = "15%";
+                }
+                if (col === "question" || col === "answer") {
+                    width = "34%";
+                }
+                return {
+                    id: col,
+                    name: col,
+                    width: width,
+                    wrap: true,
+                    selector: (row) => row[col],
+                };
+            });
+            const dataTemp = data?.map((d, di) => {
+                return {
+                    id: di + 1,
+                    ...d,
+                };
+            });
+            setFileLoaded({
+                id: id,
+                title: filename,
+                data: dataTemp,
+                columns: columns,
+            });
+        });
+    };
+
+    const setLoading = (id, status) => {
+        const updateLog = log?.map((l) => {
+            return {
+                ...l,
+                isLoading: l?.id === id ? status : l.isLoading,
+            };
+        });
+        setLog(updateLog);
+    };
+
+    const handleApproveRejectButton = async (selected, logStatus) => {
+        setLoading(selected?.id, true);
+        const { data, status } = await request().patch(
+            `/api/download-log/update-status/${selected?.id}`,
+            {
+                status: logStatus,
             }
         );
+        if (status === 200) {
+            setReload(true);
+        }
+        setLoading(selected?.id, false);
+        setIsViewFile(false);
     };
 
     return (
@@ -119,6 +148,7 @@ const ManageDownload = () => {
                         <thead>
                             <tr>
                                 <th className="pl-3">Filename</th>
+                                <th className="pl-3">Status</th>
                                 <th className="pl-3">Request By</th>
                                 <th className="pl-3">{text.tbColAction}</th>
                             </tr>
@@ -127,6 +157,19 @@ const ManageDownload = () => {
                             {log.map((l, li) => (
                                 <tr key={`${l.filename}-${li}`}>
                                     <td>{l?.filename || ""}</td>
+                                    <td className="pl-3">
+                                        <Badge
+                                            variant={
+                                                l?.status === "requested"
+                                                    ? "secondary"
+                                                    : l?.status === "rejected"
+                                                    ? "danger"
+                                                    : "success"
+                                            }
+                                        >
+                                            {l?.status}
+                                        </Badge>
+                                    </td>
                                     <td>{l?.request_by?.email || ""}</td>
                                     <td>
                                         <Button
@@ -141,20 +184,37 @@ const ManageDownload = () => {
                                             size="sm"
                                             style={{ marginLeft: "8px" }}
                                             onClick={() =>
-                                                console.log(
-                                                    "TODO::add action to this button"
+                                                handleApproveRejectButton(
+                                                    l,
+                                                    "approved"
                                                 )
                                             }
+                                            disabled={l?.isLoading}
                                         >
-                                            Approve
+                                            <>
+                                                {l?.isLoading && (
+                                                    <Spinner
+                                                        as="span"
+                                                        animation="border"
+                                                        size="sm"
+                                                        role="status"
+                                                        aria-hidden="true"
+                                                        style={{
+                                                            marginRight: "8px",
+                                                        }}
+                                                    />
+                                                )}
+                                                Approve
+                                            </>
                                         </Button>
                                         <Button
                                             variant="danger"
                                             size="sm"
                                             style={{ marginLeft: "8px" }}
                                             onClick={() =>
-                                                console.log(
-                                                    "TODO::add action to this button"
+                                                handleApproveRejectButton(
+                                                    l,
+                                                    "rejected"
                                                 )
                                             }
                                         >
@@ -172,6 +232,12 @@ const ManageDownload = () => {
                 title={fileLoaded?.title || ""}
                 show={isViewFile}
                 handleClose={() => setIsViewFile(false)}
+                handleApprove={() =>
+                    handleApproveRejectButton(fileLoaded, "approved")
+                }
+                handleReject={() =>
+                    handleApproveRejectButton(fileLoaded, "rejected")
+                }
                 content={
                     <Row className="justify-content-center">
                         <Col id="fileLoadedTmp" className="mx-auto" md="12">

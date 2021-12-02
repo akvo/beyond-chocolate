@@ -72,7 +72,15 @@ const ModalWarning = ({ text, content, show, handleClose }) => {
     );
 };
 
-const FullScreenModal = ({ text, title, content, show, handleClose }) => {
+const FullScreenModal = ({
+    text,
+    title,
+    content,
+    show,
+    handleClose,
+    handleApprove,
+    handleReject,
+}) => {
     return (
         <Modal
             size="xl"
@@ -86,10 +94,10 @@ const FullScreenModal = ({ text, title, content, show, handleClose }) => {
             </Modal.Header>
             <Modal.Body>{content}</Modal.Body>
             <Modal.Footer>
-                <Button variant="primary" onClick={handleClose}>
+                <Button variant="primary" onClick={handleApprove}>
                     Approve
                 </Button>
-                <Button variant="danger" onClick={handleClose}>
+                <Button variant="danger" onClick={handleReject}>
                     Reject
                 </Button>
             </Modal.Footer>

@@ -192,3 +192,4 @@ Route::get('/flow/all-csv/{password}', [SubmissionController::class, 'allCsv']);
 
 #Download Log
 Route::middleware(['auth:sanctum'])->get('/download-log', [DownloadLogController::class, 'getAllDownloadLog']);
+Route::middleware(['auth:sanctum'])->patch('/download-log/update-status/{id}', [DownloadLogController::class, 'updateDownloadLogStatus']);

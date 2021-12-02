@@ -144,6 +144,9 @@ const Submission = () => {
             if (x?.download_status === "approved") {
                 btnText = text.btnDownload;
             }
+            if (x?.download_status === "rejected") {
+                btnText = "Rejected";
+            }
             return (
                 <tr key={"submission-" + i}>
                     <td className="pl-3">{x.org_name}</td>
@@ -153,9 +156,16 @@ const Submission = () => {
                     <td className="pl-3">
                         <Button
                             key={"btnDownload-" + i}
-                            variant="primary"
+                            variant={
+                                x?.download_status === "rejected"
+                                    ? "danger"
+                                    : "primary"
+                            }
                             size="sm"
-                            disabled={isDisabled}
+                            disabled={
+                                isDisabled || x?.download_status === "rejected"
+                            }
+                            style={{ width: "175px" }}
                             onClick={
                                 !x.isLoading ? () => handleDownload(x) : null
                             }
