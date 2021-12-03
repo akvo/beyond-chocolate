@@ -35,7 +35,7 @@ class FlowDataSyncController extends Controller
         $sync_url = Sync::all()->last()['url'];
         $auth = new Auth();
         $token = $auth->getToken();
-        Log::error('token', [$token, $sync_url]);
+        Log::info('token', [$token, $sync_url]);
         if (!$token) {
             return "Invalid Access";
         }
@@ -57,6 +57,7 @@ class FlowDataSyncController extends Controller
             $formDeleted->push($results['changes']['formDeleted']);
             $surveyDeleted->push($results['changes']['surveyDeleted']);
             $sync_url = $results['nextSyncUrl'];
+            Log::info('sync URL', $sync_url);
         } while($repeat);
 
         # TODO :: sync database with collections value
