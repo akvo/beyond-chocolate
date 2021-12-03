@@ -130,7 +130,8 @@ const ManageDownload = () => {
         // const test = await request().get(
         //     `/api/verification/send-otp/${user?.id}`
         // );
-        setLoading(selected?.id, true);
+        setIsViewFile(false);
+        setLoading(selected?.id, logStatus);
         const { data, status } = await request().patch(
             `/api/download-log/update-status/${selected?.id}`,
             {
@@ -141,7 +142,6 @@ const ManageDownload = () => {
             setReload(true);
         }
         setLoading(selected?.id, false);
-        setIsViewFile(false);
     };
 
     const renderLogTable = () => {
@@ -185,10 +185,10 @@ const ManageDownload = () => {
                         size="sm"
                         style={{ marginLeft: "8px" }}
                         onClick={() => handleApproveRejectButton(l, "approved")}
-                        disabled={l?.isLoading}
+                        disabled={l?.isLoading === "approved"}
                     >
                         <>
-                            {l?.isLoading && (
+                            {l?.isLoading === "approved" && (
                                 <Spinner
                                     as="span"
                                     animation="border"
@@ -208,8 +208,23 @@ const ManageDownload = () => {
                         size="sm"
                         style={{ marginLeft: "8px" }}
                         onClick={() => handleApproveRejectButton(l, "rejected")}
+                        disabled={l?.isLoading === "rejected"}
                     >
-                        {text.btnReject}
+                        <>
+                            {l?.isLoading === "rejected" && (
+                                <Spinner
+                                    as="span"
+                                    animation="border"
+                                    size="sm"
+                                    role="status"
+                                    aria-hidden="true"
+                                    style={{
+                                        marginRight: "8px",
+                                    }}
+                                />
+                            )}
+                            {text.btnReject}
+                        </>
                     </Button>
                 </td>
             </tr>
