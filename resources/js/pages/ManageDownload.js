@@ -170,14 +170,24 @@ const ManageDownload = () => {
          * then approve/reject process */
         setSelectedLog({ ...selected, logStatus: logStatus });
         setIsViewFile(false);
-        const { data, status } = await request().get(
-            `/api/verification/send-otp/${user?.id}`
-        );
-        if (status === 200) {
-            setOtpCode(data?.otp_code);
-            setShowOtpModal(true);
-        } else {
-            setIsError({ show: true, msg: text?.textAlertSomethingWentWrong });
+        try {
+            const { data, status } = await request().get(
+                `/api/verification/send-otp/${user?.id}`
+            );
+            if (status === 200) {
+                setOtpCode(data?.otp_code);
+                setShowOtpModal(true);
+            } else {
+                setIsError({
+                    show: true,
+                    msg: text?.textAlertSomethingWentWrong,
+                });
+            }
+        } catch (error) {
+            setIsError({
+                show: true,
+                msg: text?.textAlertSomethingWentWrong,
+            });
         }
     };
 
@@ -188,16 +198,23 @@ const ManageDownload = () => {
             const { id, logStatus } = selectedLog;
             setShowOtpModal(false);
             setLoading(id, logStatus);
-            const { data, status } = await request().patch(
-                `/api/download-log/update-status/${id}`,
-                {
-                    status: logStatus,
+            try {
+                const { data, status } = await request().patch(
+                    `/api/download-log/update-status/${id}`,
+                    {
+                        status: logStatus,
+                    }
+                );
+                if (status === 200) {
+                    setReload(true);
+                    setSelectedLog({});
+                } else {
+                    setIsError({
+                        show: true,
+                        msg: text?.textAlertSomethingWentWrong,
+                    });
                 }
-            );
-            if (status === 200) {
-                setReload(true);
-                setSelectedLog({});
-            } else {
+            } catch (error) {
                 setIsError({
                     show: true,
                     msg: text?.textAlertSomethingWentWrong,
