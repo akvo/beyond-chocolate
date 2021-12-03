@@ -1,5 +1,5 @@
-import React from "react";
-import { Button, Modal } from "react-bootstrap";
+import React, { useEffect, useState } from "react";
+import { Button, Modal, Form } from "react-bootstrap";
 
 const ModalDataSecurity = ({ text, show, handleClose, locale, data }) => {
     return (
@@ -72,7 +72,7 @@ const ModalWarning = ({ text, content, show, handleClose }) => {
     );
 };
 
-const FullScreenModal = ({
+const DataViewModal = ({
     text,
     title,
     content,
@@ -105,10 +105,60 @@ const FullScreenModal = ({
     );
 };
 
+const OtpVerificationModal = ({
+    text,
+    show,
+    handleClose,
+    otpInput,
+    otpCode,
+    handleVerifyOtp,
+}) => {
+    const [isValid, setIsValid] = useState(false);
+    const [isInvalid, setIsInvalid] = useState(false);
+
+    useEffect(() => {
+        setIsValid(false);
+        setIsInvalid(false);
+    }, [show]);
+
+    const handleVerify = () => {
+        handleVerifyOtp();
+        const otpInputValue = otpInput?.current?.value;
+        setIsValid(otpInputValue === otpCode);
+        setIsInvalid(otpInputValue !== otpCode);
+    };
+
+    return (
+        <Modal show={show} onHide={handleClose} centered={true}>
+            <Modal.Header closeButton>
+                <Modal.Title>OTP Code</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <Form.Control
+                    ref={otpInput}
+                    type="number"
+                    placeholder="Input Code"
+                    isInvalid={isInvalid}
+                    isValid={isValid}
+                />
+            </Modal.Body>
+            <Modal.Footer>
+                <Button variant="primary" onClick={() => handleVerify()}>
+                    Verify
+                </Button>
+                <Button variant="secondary" onClick={handleClose}>
+                    {text.btnClose}
+                </Button>
+            </Modal.Footer>
+        </Modal>
+    );
+};
+
 export {
     ModalDataSecurity,
     SaveFormModal,
     ModalImpressum,
     ModalWarning,
-    FullScreenModal,
+    DataViewModal,
+    OtpVerificationModal,
 };
