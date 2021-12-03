@@ -170,6 +170,9 @@ export const uiText = {
         dwnLOfSubmissions: "Download of submissions",
         // Register
         registerFilterOrganizationsBy: "Filter organizations by",
+        // Alert text
+        textAlertFailed: "Failed!",
+        textAlertSomethingWentWrong: "Something went wrong.",
     },
 
     de: {
@@ -348,5 +351,8 @@ export const uiText = {
         dwnLOfSubmissions: "Download der eingereichten Daten",
         // Register
         registerFilterOrganizationsBy: "Filtern Sie Organisationen nach",
+        // Alert text
+        textAlertFailed: "Failed!",
+        textAlertSomethingWentWrong: "Something went wrong.",
     },
 };

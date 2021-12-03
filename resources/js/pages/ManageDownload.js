@@ -52,6 +52,8 @@ const calculateTime = (datestring) => {
 
 const ManageDownload = () => {
     const { locale } = useLocale();
+    let text = uiText[locale.active];
+
     const { user } = useAuth();
     const [log, setLog] = useState([]);
     const [reload, setReload] = useState(false);
@@ -61,7 +63,7 @@ const ManageDownload = () => {
     const otpInput = useRef(null);
     const [showOtpModal, setShowOtpModal] = useState(false);
     const [otpCode, setOtpCode] = useState(null);
-    let text = uiText[locale.active];
+    const [isError, setIsError] = useState({ show: false, msg: null });
 
     useEffect(async () => {
         const { data, status } = await request().get("/api/download-log");
@@ -79,6 +81,32 @@ const ManageDownload = () => {
         }
         setReload(false);
     }, [reload]);
+
+    useEffect(() => {
+        isError.show
+            ? setTimeout(() => {
+                  setIsError({ show: false, msg: null });
+              }, 5000)
+            : "";
+    }, [isError]);
+
+    const renderAlert = () => {
+        const { show, msg } = isError;
+        return (
+            show && (
+                <Alert
+                    key={msg}
+                    variant="warning"
+                    onClose={() => setIsError({ show: false, msg: null })}
+                    dismissible
+                >
+                    <Alert.Heading>{text?.textAlertFailed}</Alert.Heading>
+                    <hr />
+                    {msg}
+                </Alert>
+            )
+        );
+    };
 
     const handleViewButton = ({ id, filepath, filename }) => {
         setIsViewFile(true);
@@ -140,13 +168,17 @@ const ManageDownload = () => {
         /** # TODO:: Send OTP, then show form to input OTP,
          * after that continue with OTP code check
          * then approve/reject process */
+        setSelectedLog({ ...selected, logStatus: logStatus });
         setIsViewFile(false);
         const { data, status } = await request().get(
             `/api/verification/send-otp/${user?.id}`
         );
-        setOtpCode(data?.otp_code);
-        setShowOtpModal(true);
-        setSelectedLog({ ...selected, logStatus: logStatus });
+        if (status === 200) {
+            setOtpCode(data?.otp_code);
+            setShowOtpModal(true);
+        } else {
+            setIsError({ show: true, msg: text?.textAlertSomethingWentWrong });
+        }
     };
 
     const handleOtpVerification = async () => {
@@ -164,6 +196,12 @@ const ManageDownload = () => {
             );
             if (status === 200) {
                 setReload(true);
+                setSelectedLog({});
+            } else {
+                setIsError({
+                    show: true,
+                    msg: text?.textAlertSomethingWentWrong,
+                });
             }
             setLoading(id, false);
         }
@@ -263,7 +301,7 @@ const ManageDownload = () => {
                     <h3>{text.navManageDownloadRequest}</h3>
                     {/* <p>{text.textInfoSubmission}</p> */}
                     <hr />
-                    {/* {renderAlert()} */}
+                    {renderAlert()}
                     <Table bordered hover responsive size="sm">
                         <thead>
                             <tr>

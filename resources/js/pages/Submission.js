@@ -89,7 +89,7 @@ const Submission = () => {
             let msg =
                 status === 204
                     ? `Failed to download ${filename}.csv. Generate data process failed.`
-                    : "Something went wrong.";
+                    : text?.textAlertSomethingWentWrong;
             setIsError({ show: true, msg });
         }
         // setLoading(id, false);
@@ -204,7 +204,7 @@ const Submission = () => {
                     onClose={() => setIsError({ show: false, msg: null })}
                     dismissible
                 >
-                    <Alert.Heading>Failed!</Alert.Heading>
+                    <Alert.Heading>{text?.textAlertFailed}</Alert.Heading>
                     <hr />
                     {msg}
                 </Alert>
