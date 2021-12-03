@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
     Container,
     Row,
@@ -12,7 +12,7 @@ import {
 import { csv } from "d3-request";
 import DataTable from "react-data-table-component";
 import request from "../lib/request";
-import { FullScreenModal } from "../components/Modal";
+import { DataViewModal, OtpVerificationModal } from "../components/Modal";
 import { uiText } from "../static/ui-text";
 import { useLocale } from "../lib/locale-context";
 import takeRight from "lodash/takeRight";
@@ -41,6 +41,15 @@ const Loading = () => (
     </Spinner>
 );
 
+const calculateTime = (datestring) => {
+    const time = new Date("2021-12-03 01:38:55");
+    const start = time.getTime();
+    // add 1 minute
+    const end = time.setTime(time.getTime() + 1000 * 60);
+    const current = new Date().getTime();
+    console.log(start, end, current);
+};
+
 const ManageDownload = () => {
     const { locale } = useLocale();
     const { user } = useAuth();
@@ -48,6 +57,10 @@ const ManageDownload = () => {
     const [reload, setReload] = useState(false);
     const [isViewFile, setIsViewFile] = useState(false);
     const [fileLoaded, setFileLoaded] = useState({});
+    const [selectedLog, setSelectedLog] = useState({});
+    const otpInput = useRef(null);
+    const [showOtpModal, setShowOtpModal] = useState(false);
+    const [otpCode, setOtpCode] = useState(null);
     let text = uiText[locale.active];
 
     useEffect(async () => {
@@ -127,21 +140,33 @@ const ManageDownload = () => {
         /** # TODO:: Send OTP, then show form to input OTP,
          * after that continue with OTP code check
          * then approve/reject process */
-        // const test = await request().get(
-        //     `/api/verification/send-otp/${user?.id}`
-        // );
         setIsViewFile(false);
-        setLoading(selected?.id, logStatus);
-        const { data, status } = await request().patch(
-            `/api/download-log/update-status/${selected?.id}`,
-            {
-                status: logStatus,
-            }
+        const { data, status } = await request().get(
+            `/api/verification/send-otp/${user?.id}`
         );
-        if (status === 200) {
-            setReload(true);
+        setOtpCode(data?.otp_code);
+        setShowOtpModal(true);
+        setSelectedLog({ ...selected, logStatus: logStatus });
+    };
+
+    const handleOtpVerification = async () => {
+        /** # TODO:: Approve/Reject request when otp verification success */
+        const otpInputValue = otpInput?.current?.value;
+        if (otpInputValue === otpCode) {
+            const { id, logStatus } = selectedLog;
+            setShowOtpModal(false);
+            setLoading(id, logStatus);
+            const { data, status } = await request().patch(
+                `/api/download-log/update-status/${id}`,
+                {
+                    status: logStatus,
+                }
+            );
+            if (status === 200) {
+                setReload(true);
+            }
+            setLoading(id, false);
         }
-        setLoading(selected?.id, false);
     };
 
     const renderLogTable = () => {
@@ -252,7 +277,7 @@ const ManageDownload = () => {
                     </Table>
                 </Col>
             </Row>
-            <FullScreenModal
+            <DataViewModal
                 text={text}
                 title={fileLoaded?.title || ""}
                 show={isViewFile}
@@ -278,6 +303,14 @@ const ManageDownload = () => {
                         </Col>
                     </Row>
                 }
+            />
+            <OtpVerificationModal
+                text={text}
+                show={showOtpModal}
+                otpInput={otpInput}
+                otpCode={otpCode}
+                handleClose={() => setShowOtpModal(false)}
+                handleVerifyOtp={() => handleOtpVerification()}
             />
         </Container>
     );
