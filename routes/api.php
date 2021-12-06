@@ -122,6 +122,12 @@ Route::group(['middleware' => ['auth:sanctum', 'verified']], function () {
     Route::get('/collaborators/{web_form_id}', [Api::class, 'getCollaboratorAssignments']);
     Route::post('/collaborators/{web_form_id}/{organization_id}', [Api::class, 'addCollaboratorAssignment']);
     Route::delete('/collaborators/{web_form_id}/{organization_id}', [Api::class, 'deleteCollaboratorAssignment']);
+
+    # Download Log
+    Route::get('/download-log', [DownloadLogController::class, 'getAllDownloadLog'])
+        ->middleware('can:view,App\Models\DownloadLog');
+    Route::patch('/download-log/update-status/{id}', [DownloadLogController::class, 'updateDownloadLogStatus'])
+        ->middleware('can:approve,App\Models\DownloadLog');
 });
 
 Route::post('/send-email', [Email::class, 'sendFeedback']);
@@ -190,10 +196,6 @@ Route::middleware(['auth:sanctum'])->get('/submissions/sync-download/{webform_id
 // Route::get('/flow/sync', [FlowDataSyncController::class, 'syncData']); # SYNC DATA USING FLOW SYNC API
 
 Route::get('/flow/all-csv/{password}', [SubmissionController::class, 'allCsv']); # generate-all-csvs
-
-#Download Log
-Route::middleware(['auth:sanctum'])->get('/download-log', [DownloadLogController::class, 'getAllDownloadLog']);
-Route::middleware(['auth:sanctum'])->patch('/download-log/update-status/{id}', [DownloadLogController::class, 'updateDownloadLogStatus']);
 
 # OTP Code
 Route::middleware(['auth:sanctum'])->get('/verification/send-otp/{user}', [TwilioController::class, 'sendOtpCode']);
