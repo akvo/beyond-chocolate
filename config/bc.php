@@ -200,7 +200,9 @@ return [
         // ],
 
     ],
+    // below config used as survey_id for syncs table before survey_id column deleted from syncs table
     'flow_projects_survey_group_id' => env('AKVOFLOW_PROJECTS_SURVEY_GROUP_ID'),
+    //
     'flow_data_form_instance_url' => $flowDataURL.'form-instances/'.env('AKVOFLOW_INSTANCE').'/' # survey_group_id / survey_id
     ## END OF CONFIG for submission uuid scripts
 

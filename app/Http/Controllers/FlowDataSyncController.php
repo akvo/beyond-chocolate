@@ -22,16 +22,6 @@ class FlowDataSyncController extends Controller
         $config = config('bc');
         $surveys = collect($config['forms']);
 
-        // collections
-        // $dataPointDeleted = collect();
-        // $dataPointChanged = collect();
-        // $formChanged = collect();
-        // $surveyChanged = collect();
-        // $formInstanceDeleted = collect();
-        // $formInstanceChanged = collect();
-        // $formDeleted = collect();
-        // $surveyDeleted = collect();
-
         $sync_url = Sync::all()->last()['url'];
         $auth = new Auth();
         $token = $auth->getToken();
@@ -155,7 +145,7 @@ class FlowDataSyncController extends Controller
         $sync = null;
         $checkSyncUrl = Sync::where('url', $sync_url)->first();
         if(is_null($checkSyncUrl)) {
-            $sync = Sync::create(['survey_id' => $config['flow_projects_survey_group_id'], 'url' => $sync_url]);
+            $sync = Sync::create(['url' => $sync_url]);
         }
         return $sync;
     }
